@@ -58,7 +58,7 @@ function App() {
         exit="exit"
         variants={pageVariants}
         className="min-h-screen bg-gray-100 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto mb-10">
           <div className="flex justify-center items-center mb-8">
             <Brain className="w-10 h-10 text-indigo-600" />
             <span className="ml-3 text-2xl font-bold text-gray-900">
@@ -67,6 +67,7 @@ function App() {
           </div>
           <Auth />
         </div>
+        <Footer />
       </motion.div>
     );
   }
