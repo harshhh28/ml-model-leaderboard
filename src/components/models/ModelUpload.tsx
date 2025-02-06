@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, lazy } from "react";
 import { Upload, AlertCircle, Code } from "lucide-react";
-import Editor from "@monaco-editor/react";
 import { supabase } from "../../lib/supabase/supabase";
 import { evaluateModel } from "../../lib/evaluator/modelEvaluator";
 import { initMonaco } from "../../lib/editor/monaco";
@@ -20,6 +19,8 @@ def train_model():
     
     return model`;
 
+const MonacoEditor = lazy(() => import("@monaco-editor/react"));
+
 export function ModelUpload() {
   const [uploadType, setUploadType] = useState<"file" | "code">("file");
   const [file, setFile] = useState<File | null>(null);
@@ -28,6 +29,7 @@ export function ModelUpload() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [editorLoading, setEditorLoading] = useState(true);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,18 +184,23 @@ export function ModelUpload() {
         </div>
       ) : (
         <div className="border rounded-lg">
-          <Editor
+          {editorLoading && (
+            <div className="h-[400px] flex items-center justify-center">
+              Loading editor...
+            </div>
+          )}
+          <MonacoEditor
             height="400px"
             defaultLanguage="python"
             value={code}
-            onChange={(value: string | null | undefined) =>
-              setCode(value ?? "")
-            }
+            onChange={(value) => setCode(value ?? "")}
             theme="vs-light"
             options={{
               minimap: { enabled: false },
               scrollBeyondLastLine: false,
             }}
+            beforeMount={() => setEditorLoading(true)}
+            onMount={() => setEditorLoading(false)}
           />
         </div>
       )}

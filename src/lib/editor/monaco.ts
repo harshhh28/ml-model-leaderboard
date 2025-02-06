@@ -1,40 +1,69 @@
-import * as monaco from "monaco-editor";
+import { lazy } from "react";
 
-self.MonacoEnvironment = {
-  getWorker() {
-    return new Worker(
-      new URL(
-        "/monaco-editor/esm/vs/editor/editor.worker.js",
-        window.location.origin
-      ),
-      { type: "module" }
-    );
-  },
+// Lazy load workers
+const loadWorkers = async () => {
+  const [editorWorker, jsonWorker, cssWorker, htmlWorker, tsWorker] =
+    await Promise.all([
+      import("monaco-editor/esm/vs/editor/editor.worker?worker"),
+      import("monaco-editor/esm/vs/language/json/json.worker?worker"),
+      import("monaco-editor/esm/vs/language/css/css.worker?worker"),
+      import("monaco-editor/esm/vs/language/html/html.worker?worker"),
+      import("monaco-editor/esm/vs/language/typescript/ts.worker?worker"),
+    ]);
+
+  self.MonacoEnvironment = {
+    getWorker(_, label) {
+      if (label === "json") return new jsonWorker.default();
+      if (label === "css" || label === "scss" || label === "less")
+        return new cssWorker.default();
+      if (label === "html" || label === "handlebars" || label === "razor")
+        return new htmlWorker.default();
+      if (label === "typescript" || label === "javascript")
+        return new tsWorker.default();
+      return new editorWorker.default();
+    },
+  };
 };
 
-export function initMonaco() {
+export const initMonaco = async () => {
+  await loadWorkers();
+  const monaco = await import("monaco-editor");
   monaco.languages.register({ id: "python" });
   monaco.languages.setMonarchTokensProvider("python", {
     defaultToken: "",
     tokenPostfix: ".python",
     keywords: [
-      "def",
+      "and",
+      "as",
+      "assert",
+      "break",
       "class",
-      "from",
-      "import",
-      "return",
-      "if",
+      "continue",
+      "def",
+      "del",
+      "elif",
       "else",
-      "try",
       "except",
+      "exec",
+      "finally",
       "for",
-      "while",
+      "from",
+      "global",
+      "if",
+      "import",
       "in",
       "is",
+      "lambda",
       "not",
-      "and",
       "or",
-      "self",
+      "pass",
+      "print",
+      "raise",
+      "return",
+      "try",
+      "while",
+      "with",
+      "yield",
     ],
     brackets: [
       { open: "{", close: "}", token: "delimiter.curly" },
@@ -43,47 +72,25 @@ export function initMonaco() {
     ],
     tokenizer: {
       root: [
-        { include: "@whitespace" },
-        { include: "@numbers" },
-        { include: "@strings" },
-        [/[,:;]/, "delimiter"],
-        [/[{}\[\]()]/, "@brackets"],
-        [/@[a-zA-Z]\w*/, "tag"],
         [
-          /[a-zA-Z]\w*/,
-          {
-            cases: {
-              "@keywords": "keyword",
-              "@default": "identifier",
-            },
-          },
+          /[a-zA-Z_]\w*/,
+          { cases: { "@keywords": "keyword", "@default": "identifier" } },
         ],
+        { include: "@whitespace" },
+        [/[{}()\[\]]/, "@brackets"],
+        [/[=+\-*/<>!&|^~]/, "operator"],
+        [/@?[a-zA-Z_]\w*/, "identifier"],
+        [/[0-9]+/, "number"],
+        [/".*?"/, "string"],
+        [/'.*?'/, "string"],
       ],
       whitespace: [
-        [/\s+/, "white"],
+        [/[ \t\r\n]+/, "white"],
         [/#.*$/, "comment"],
-      ],
-      numbers: [
-        [/\d*\.\d+([eE][-+]?\d+)?/, "number.float"],
-        [/0[xX][0-9a-fA-F]+/, "number.hex"],
-        [/\d+/, "number"],
-      ],
-      strings: [
-        [/'([^'\\]|\\.)*$/, "string.invalid"],
-        [/"([^"\\]|\\.)*$/, "string.invalid"],
-        [/'/, "string", "@string_single"],
-        [/"/, "string", "@string_double"],
-      ],
-      string_single: [
-        [/[^\\']+/, "string"],
-        [/\\./, "string.escape"],
-        [/'/, "string", "@pop"],
-      ],
-      string_double: [
-        [/[^\\"]+/, "string"],
-        [/\\./, "string.escape"],
-        [/"/, "string", "@pop"],
       ],
     },
   });
-}
+};
+
+// Lazy load the editor component
+export const MonacoEditor = lazy(() => import("@monaco-editor/react"));

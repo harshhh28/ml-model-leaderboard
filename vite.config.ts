@@ -20,13 +20,17 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 3500,
     rollupOptions: {
       output: {
         manualChunks: {
-          monaco: ["monaco-editor"],
-          "monaco-languages": [
-            "monaco-editor/esm/vs/basic-languages/python/python.contribution",
+          "monaco-editor": ["monaco-editor"],
+          "monaco-workers": [
+            "monaco-editor/esm/vs/editor/editor.worker",
+            "monaco-editor/esm/vs/language/json/json.worker",
+            "monaco-editor/esm/vs/language/css/css.worker",
+            "monaco-editor/esm/vs/language/html/html.worker",
+            "monaco-editor/esm/vs/language/typescript/ts.worker",
           ],
           vendor: [
             "react",

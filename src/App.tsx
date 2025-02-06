@@ -15,15 +15,23 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    console.log("Checking auth session...");
     // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        console.log("Session data:", session);
+        setUser(session?.user ?? null);
+      })
+      .catch((error) => {
+        console.error("Auth session error:", error);
+      });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", session);
       setUser(session?.user ?? null);
     });
 
