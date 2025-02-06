@@ -80,9 +80,31 @@ export function ModelUpload() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [nameError, setNameError] = useState<string>("");
+
+  const validateModelName = (name: string) => {
+    if (name.length <= 2) {
+      setNameError("Model name must be longer than 2 characters");
+    } else {
+      setNameError("");
+    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setName(newName);
+    validateModelName(newName);
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate model name length
+    if (name.length <= 2) {
+      setNameError("Model name must be longer than 2 characters");
+      return;
+    }
+
     if (!file || !name) return;
 
     try {
@@ -163,10 +185,14 @@ export function ModelUpload() {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors"
-            required
+            onChange={handleNameChange}
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm
+              ${nameError ? "border-red-500" : ""}`}
+            placeholder="Enter model name"
           />
+          {nameError && (
+            <p className="mt-2 text-sm text-red-600">{nameError}</p>
+          )}
         </div>
 
         <div>
