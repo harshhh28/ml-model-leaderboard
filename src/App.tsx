@@ -8,6 +8,7 @@ import type { User } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserProfile } from "./components/profile/UserProfile";
 import { Navbar } from "./components/navigation/Navbar";
+import { Footer } from "./components/navigation/Footer";
 
 function App() {
   const [activeTab, setActiveTab] = useState<
@@ -97,6 +98,7 @@ function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+      <Footer />
     </div>
   );
 }
