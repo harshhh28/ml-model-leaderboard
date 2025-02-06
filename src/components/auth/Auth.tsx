@@ -51,7 +51,7 @@ export function Auth() {
         password,
       });
       if (error) throw error;
-      alert("Check your email for the confirmation link!");
+      alert("Welcome!");
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
